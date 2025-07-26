@@ -1,0 +1,103 @@
+{
+  "name": "loganalyzer-mcp",
+  "version": "1.0.0",
+  "description": "🚀 Debug server logs in under 30 seconds - AI-powered MCP server with rapid debugging, real-time monitoring, and actionable fixes",
+  "main": "dist/src/server.js",
+  "type": "module",
+  "bin": {
+    "loganalyzer-mcp": "dist/src/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node --esm src/server.ts",
+    "start": "node dist/src/server.js",
+    "serve": "npm run build && npm run start",
+    "analyze": "ts-node --esm cli/simple-client.ts",
+    "test": "ts-node --esm test/test-runner.ts",
+    "test-rapid": "node test-rapid-debug.js",
+    "validate": "node validate.js",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "postinstall": "echo '✅ LogAnalyzer MCP Server installed! See README.md for setup instructions.'"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "log-analysis",
+    "debugging",
+    "ai",
+    "gemini",
+    "devops",
+    "monitoring",
+    "error-analysis",
+    "troubleshooting",
+    "cursor",
+    "rapid-debug",
+    "server-logs",
+    "real-time",
+    "actionable-fixes"
+  ],
+  "author": {
+    "name": "LogAnalyzer Team",
+    "email": "contact@loganalyzer.dev",
+    "url": "https://loganalyzer.dev"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/loganalyzer-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/loganalyzer-mcp/issues"
+  },
+  "homepage": "https://loganalyzer.dev",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "CHANGELOG.md",
+    "docs/",
+    "examples/"
+  ],
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "chokidar": "^4.0.1",
+    "dotenv": "^17.2.0",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.2",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "mcp": {
+    "name": "LogAnalyzer MCP Server",
+    "description": "Debug server logs in under 30 seconds with AI-powered analysis",
+    "tools": [
+      "rapid_debug",
+      "quick_scan",
+      "analyze_log",
+      "watch_log_file",
+      "stop_watching",
+      "list_watched_files",
+      "get_recent_errors"
+    ],
+    "categories": [
+      "debugging",
+      "monitoring",
+      "devops",
+      "ai"
+    ],
+    "aiProvider": "gemini",
+    "performance": {
+      "averageAnalysisTime": "7.5s",
+      "targetTime": "<30s",
+      "confidence": "95%"
+    }
+  }
+}

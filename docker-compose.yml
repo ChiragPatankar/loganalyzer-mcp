@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  loganalyzer-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: loganalyzer-mcp-server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - MAX_FILE_SIZE=10MB
+      - WATCH_INTERVAL=1000
+      - MAX_CONTEXT_TOKENS=8000
+    volumes:
+      # Mount logs directory for file watching
+      - ./logs:/app/logs:ro
+      # Mount config if needed
+      - ./.env:/app/.env:ro
+    networks:
+      - loganalyzer-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('healthy')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Redis for caching (future enhancement)
+  redis:
+    image: redis:7-alpine
+    container_name: loganalyzer-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - loganalyzer-network
+    profiles:
+      - with-cache
+
+  # Optional: PostgreSQL for persistent storage (future enhancement)
+  postgres:
+    image: postgres:15-alpine
+    container_name: loganalyzer-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=loganalyzer
+      - POSTGRES_USER=loganalyzer
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-changeme}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - loganalyzer-network
+    profiles:
+      - with-db
+
+networks:
+  loganalyzer-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  postgres-data:
+
+# Example usage:
+# Development: docker-compose up
+# With cache: docker-compose --profile with-cache up
+# Full stack: docker-compose --profile with-cache --profile with-db up 
