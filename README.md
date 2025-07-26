@@ -184,7 +184,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **NPM Package**: [loganalyzer-mcp](https://www.npmjs.com/package/loganalyzer-mcp)
 - **GitHub Repository**: [LogAnalyzer MCP Server](https://github.com/your-username/loganalyzer-mcp)
 - **Documentation**: [Full Documentation](docs/)
-- **Issues**: [Report Issues](https://github.com/your-username/loganalyzer-mcp/issues)
+- **Issues**: [Report Issues](https://github.com/ChiragPatankar/loganalyzer-mcp/issues)
 
 ---
 
