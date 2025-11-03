@@ -8,6 +8,10 @@
 
 **LogAnalyzer MCP Server** is a Model Context Protocol (MCP) server that provides AI-powered log analysis with rapid debugging capabilities. Perfect for DevOps engineers, backend developers, and SRE teams who need instant insights into server issues.
 
+<a href="https://glama.ai/mcp/servers/@ChiragPatankar/loganalyzer-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@ChiragPatankar/loganalyzer-mcp/badge" alt="LogAnalyzer Server MCP server" />
+</a>
+
 ## ⚡ **Key Features**
 
 - **🚀 Rapid Debug**: Analyze and debug server logs in under 30 seconds (tested at 7.5s average)
@@ -189,4 +193,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 **Made with ❤️ for the developer community**  
-*Helping teams debug faster, learn more, and ship with confidence.* 
+*Helping teams debug faster, learn more, and ship with confidence.*
