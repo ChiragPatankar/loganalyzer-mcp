@@ -10,6 +10,7 @@ export interface RapidDebugResult {
   rootCause: string;
   confidence: number;
   nextSteps: string[];
+  provider_status?: 'ai_enhanced' | 'local_fallback' | 'error_fallback';
 }
 
 export interface QuickFix {
@@ -54,7 +55,8 @@ export class RapidDebugger {
       debugCommands,
       rootCause: aiAnalysis.rootCause,
       confidence: aiAnalysis.confidence,
-      nextSteps: this.generateNextSteps(patterns, aiAnalysis)
+      nextSteps: this.generateNextSteps(patterns, aiAnalysis),
+      provider_status: aiAnalysis.provider_status
     };
   }
 

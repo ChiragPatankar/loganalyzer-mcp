@@ -4,12 +4,16 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 export interface ServerConfig {
+  llmProvider: 'gemini' | 'anthropic';
   geminiApiKey: string;
+  anthropicApiKey: string;
   logLevel: 'debug' | 'info' | 'warn' | 'error';
   maxFileSize: number; // in bytes
   watchInterval: number; // in milliseconds
   maxContextTokens: number;
   defaultPollInterval: number;
+  isAiEnabled: boolean;
+  dbPath: string;
 }
 
 class ConfigManager {
@@ -29,22 +33,47 @@ class ConfigManager {
   }
 
   private loadConfig(): ServerConfig {
+    const llmProvider = (process.env.LLM_PROVIDER || 'gemini').toLowerCase() as 'gemini' | 'anthropic';
+    const geminiApiKey = process.env.GEMINI_API_KEY || '';
+    const anthropicApiKey = process.env.ANTHROPIC_API_KEY || '';
+
+    let isAiEnabled = false;
+    if (llmProvider === 'gemini') {
+      isAiEnabled = !!geminiApiKey;
+      if (!isAiEnabled) {
+        console.error(
+          '⚠️  WARNING: GEMINI_API_KEY is missing. AI-backed log analysis is disabled. Only local regex/patterns will be used.'
+        );
+      }
+    } else if (llmProvider === 'anthropic') {
+      isAiEnabled = !!anthropicApiKey;
+      if (!isAiEnabled) {
+        console.error(
+          '⚠️  WARNING: ANTHROPIC_API_KEY is missing. AI-backed log analysis is disabled. Only local regex/patterns will be used.'
+        );
+      }
+    } else {
+      console.error(
+        `⚠️  WARNING: Unknown LLM provider '${llmProvider}'. AI-backed log analysis is disabled.`
+      );
+    }
+
     return {
-      geminiApiKey: process.env.GEMINI_API_KEY || '',
+      llmProvider,
+      geminiApiKey,
+      anthropicApiKey,
       logLevel: (process.env.LOG_LEVEL as any) || 'info',
       maxFileSize: this.parseSize(process.env.MAX_FILE_SIZE || '10MB'),
       watchInterval: parseInt(process.env.WATCH_INTERVAL || '1000'),
       maxContextTokens: parseInt(process.env.MAX_CONTEXT_TOKENS || '8000'),
-      defaultPollInterval: parseInt(process.env.DEFAULT_POLL_INTERVAL || '1000')
+      defaultPollInterval: parseInt(process.env.DEFAULT_POLL_INTERVAL || '1000'),
+      isAiEnabled,
+      dbPath: process.env.DB_PATH || 'loganalyzer.db'
     };
   }
 
   private validateConfig(): void {
     const errors: string[] = [];
-
-    if (!this.config.geminiApiKey) {
-      errors.push('GEMINI_API_KEY is required');
-    }
 
     if (this.config.maxFileSize <= 0) {
       errors.push('MAX_FILE_SIZE must be a positive number');

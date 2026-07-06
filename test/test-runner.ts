@@ -4,6 +4,7 @@ import { LogAnalyzer } from '../src/tools/logAnalyzer.js';
 import { LogUtils } from '../src/utils.js';
 import { testCases } from './sample-logs.js';
 import { config } from '../src/config.js';
+import { runHardeningTests } from './hardening-tests.js';
 
 class TestRunner {
   private logAnalyzer: LogAnalyzer;
@@ -22,6 +23,13 @@ class TestRunner {
 
     // Run utility tests
     await this.runUtilityTests();
+
+    // Run hardening tests
+    try {
+      await runHardeningTests();
+    } catch (error) {
+      console.error('❌ Hardening tests encountered an error:', error);
+    }
 
     // Run analysis tests
     await this.runAnalysisTests();
@@ -195,22 +203,26 @@ class TestRunner {
       .filter(r => r.success)
       .reduce((sum, r) => sum + r.duration, 0) / successful || 0;
 
-    console.log(`✅ Successful tests: ${successful}/${total}`);
-    console.log(`⏱️  Average analysis time: ${avgDuration.toFixed(0)}ms`);
-    
-    if (successful > 0) {
-      const avgConfidence = this.testResults
-        .filter(r => r.success && r.analysis)
-        .reduce((sum, r) => sum + r.analysis!.confidence, 0) / successful;
+    if (total === 0) {
+      console.log('⏭️  Skipped: AI analysis tests not run (no API key configured)');
+    } else {
+      console.log(`✅ Successful tests: ${successful}/${total}`);
+      console.log(`⏱️  Average analysis time: ${avgDuration.toFixed(0)}ms`);
       
-      console.log(`🎯 Average confidence: ${avgConfidence.toFixed(1)}%`);
+      if (successful > 0) {
+        const avgConfidence = this.testResults
+          .filter(r => r.success && r.analysis)
+          .reduce((sum, r) => sum + r.analysis!.confidence, 0) / successful;
+        
+        console.log(`🎯 Average confidence: ${avgConfidence.toFixed(1)}%`);
+      }
+
+      if (successful < total) {
+        console.log('\n💡 Some tests failed. Check configuration and API connectivity.');
+      }
     }
 
     console.log('\n🎉 Test suite completed!');
-    
-    if (successful < total) {
-      console.log('\n💡 Some tests failed. Check configuration and API connectivity.');
-    }
   }
 }
 
@@ -224,12 +236,13 @@ interface TestResult {
   expectedErrorType: string;
 }
 
-// Run tests if called directly
 async function main() {
   const runner = new TestRunner();
   await runner.runAllTests();
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+import { fileURLToPath } from 'url';
+const isMain = process.argv[1] && fileURLToPath(import.meta.url).replace(/\\/g, '/') === process.argv[1].replace(/\\/g, '/');
+if (isMain) {
   main().catch(console.error);
 } 

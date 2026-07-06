@@ -10,7 +10,9 @@ export interface LogAnalysis {
     timestamp: Date;
     lineNumbers?: number[];
     stackTrace?: string;
+    provider_status?: 'ai_enhanced' | 'local_fallback' | 'error_fallback';
   };
+  provider_status?: 'ai_enhanced' | 'local_fallback' | 'error_fallback';
 }
 
 export interface FileWatchResult {
@@ -37,4 +39,10 @@ export interface MCPToolResult {
   data?: any;
   error?: string;
   metadata?: Record<string, any>;
+}
+
+export interface StackTraceFrame {
+  file: string;
+  line: number;
+  function: string;
 } 

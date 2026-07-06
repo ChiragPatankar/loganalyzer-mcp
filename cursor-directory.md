@@ -105,4 +105,4 @@ npm install -g loganalyzer-mcp
 **Tags**: `debugging`, `logs`, `ai`, `devops`, `monitoring`, `troubleshooting`, `gemini`
 **Category**: Developer Tools / DevOps
 **License**: MIT
-**Repository**: https://github.com/[your-username]/loganalyzer-mcp 
+**Repository**: https://github.com/ChiragPatankar/loganalyzer-mcp 

@@ -51,10 +51,11 @@ Then add to your Cursor settings:
 | `rapid_debug` | 🚀 Debug server logs in under 30 seconds with actionable fixes | 7.5s avg |
 | `quick_scan` | ⚡ Ultra-fast error detection for real-time monitoring | <1s |
 | `analyze_log` | 🤖 Deep AI-powered log analysis with root cause identification | 10-15s |
-| `watch_log_file` | 👀 Monitor log files for new errors in real-time | Real-time |
+| `watch_log_file` | 👀 Monitor log files for real-time error detection | Real-time |
 | `stop_watching` | ⏹️ Stop monitoring specific log files | Instant |
 | `list_watched_files` | 📋 View all currently monitored files | Instant |
 | `get_recent_errors` | 📊 Retrieve recent error analysis and history | Instant |
+| `get_error_history` | 🗄️ Query error history from SQLite with pagination and filtering | Instant |
 
 ## 🎯 **Perfect For**
 
@@ -104,23 +105,29 @@ npm run test-rapid
 ## 🔧 **Configuration**
 
 ### Environment Variables
-```bash
-GEMINI_API_KEY=your_gemini_api_key_here
-LOG_LEVEL=info
-MAX_FILE_SIZE=10MB
-WATCH_POLL_INTERVAL=1000
-```
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `LLM_PROVIDER` | AI provider to use (`gemini` or `anthropic`) | `gemini` |
+| `GEMINI_API_KEY` | API Key for Gemini (required if `LLM_PROVIDER=gemini`) | - |
+| `ANTHROPIC_API_KEY` | API Key for Anthropic (required if `LLM_PROVIDER=anthropic`) | - |
+| `DB_PATH` | File path for SQLite database store | `loganalyzer.db` |
+| `LOG_LEVEL` | Logging level (`debug`, `info`, `warn`, `error`) | `info` |
+| `MAX_FILE_SIZE` | Maximum size limit of log files to read | `10MB` |
 
-### MCP Server Configuration
+### Graceful Degradation (Local Processing)
+If no API key matches the active provider, the server will **not crash**. It logs a warning to `stderr` and disables AI-backed enhancements. The tools will still perform local pattern scanning, watch log files, record events, and compile local fallback diagnoses safely.
+
+### MCP Server Configuration Example
 ```json
 {
   "mcpServers": {
     "loganalyzer": {
       "command": "loganalyzer-mcp",
       "env": {
-        "GEMINI_API_KEY": "your_key_here",
-        "LOG_LEVEL": "info",
-        "MAX_FILE_SIZE": "10MB"
+        "LLM_PROVIDER": "anthropic",
+        "ANTHROPIC_API_KEY": "your_anthropic_api_key_here",
+        "DB_PATH": "path/to/loganalyzer.db",
+        "LOG_LEVEL": "info"
       }
     }
   }
@@ -182,8 +189,9 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## 🔗 **Links**
 
 - **NPM Package**: [loganalyzer-mcp](https://www.npmjs.com/package/loganalyzer-mcp)
-- **GitHub Repository**: [LogAnalyzer MCP Server](https://github.com/your-username/loganalyzer-mcp)
+- **GitHub Repository**: [LogAnalyzer MCP Server](https://github.com/ChiragPatankar/loganalyzer-mcp)
 - **Documentation**: [Full Documentation](docs/)
+- **Hardening Walkthrough**: [Hardening Details](docs/hardening.md)
 - **Issues**: [Report Issues](https://github.com/ChiragPatankar/loganalyzer-mcp/issues)
 
 ---

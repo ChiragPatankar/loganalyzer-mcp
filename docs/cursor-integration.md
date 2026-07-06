@@ -47,7 +47,10 @@ Add this configuration:
         "/absolute/path/to/loganalyzer-mcp/dist/src/server.js"
       ],
       "env": {
-        "GEMINI_API_KEY": "your_gemini_api_key_here"
+        "LLM_PROVIDER": "gemini",
+        "GEMINI_API_KEY": "your_gemini_api_key_here",
+        "ANTHROPIC_API_KEY": "your_anthropic_api_key_here",
+        "DB_PATH": "/absolute/path/to/loganalyzer.db"
       }
     }
   }
@@ -78,7 +81,7 @@ Add this configuration:
     "loganalyzer": {
       "command": "node",
       "args": [
-        "/Users/yourname/projects/loganalyzer-mcp/dist/src/server.js"
+        "/Users/username/projects/loganalyzer-mcp/dist/src/server.js"
       ],
       "env": {
         "GEMINI_API_KEY": "your_gemini_api_key_here"
@@ -168,14 +171,16 @@ Cursor AI can use these tools through the LogAnalyzer MCP server:
 3. Verify Node.js is in your PATH
 4. Restart Cursor AI after configuration changes
 
-### API Key Issues
+### API Key Warnings (Graceful Degradation)
 
-**Error**: "GEMINI_API_KEY is required"
+**Symptom**: Warning logged to stderr: "GEMINI_API_KEY is missing. AI-backed log analysis is disabled."
 
-**Solutions**:
-1. Get API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Add it to your MCP configuration
-3. Verify the key is valid and has quota remaining
+**Explanation**: 
+The server does not crash if the API Key is missing. Instead, it enters **Graceful Degradation** mode. AI-enhanced analysis is skipped, and local heuristics are used.
+
+**Solutions to restore AI**:
+1. Add `GEMINI_API_KEY` (if `LLM_PROVIDER=gemini`) or `ANTHROPIC_API_KEY` (if `LLM_PROVIDER=anthropic`) to your MCP env settings.
+2. Verify the key is valid and not expired.
 
 ### Permission Errors
 

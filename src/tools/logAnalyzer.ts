@@ -1,22 +1,35 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { LogAnalysis, LogParsingOptions } from '../types.js';
 import { LogUtils } from '../utils.js';
+import { config } from '../config.js';
+import { LLMProvider } from '../providers/llmProvider.js';
+import { GeminiProvider } from '../providers/geminiProvider.js';
+import { AnthropicProvider } from '../providers/anthropicProvider.js';
 
 export class LogAnalyzer {
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private provider?: LLMProvider;
 
   constructor() {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY environment variable is required');
+    const isAiEnabled = config.get('isAiEnabled');
+    if (isAiEnabled) {
+      const providerType = config.get('llmProvider');
+      if (providerType === 'gemini') {
+        const apiKey = config.get('geminiApiKey');
+        this.provider = new GeminiProvider(apiKey);
+      } else if (providerType === 'anthropic') {
+        const apiKey = config.get('anthropicApiKey');
+        this.provider = new AnthropicProvider(apiKey);
+      }
     }
-
-    this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   }
 
   async analyzeLogs(logText: string, options: LogParsingOptions): Promise<LogAnalysis> {
+    if (!config.get('isAiEnabled') || !this.provider) {
+      const fallback = this.createFallbackAnalysis('AI analysis disabled (API key missing)', logText);
+      fallback.provider_status = 'local_fallback';
+      fallback.metadata.provider_status = 'local_fallback';
+      return fallback;
+    }
+
     // Pre-process the log content
     const processedContent = this.preprocessLogs(logText, options);
     
@@ -24,14 +37,20 @@ export class LogAnalyzer {
     const prompt = this.buildAnalysisPrompt(processedContent, options);
     
     try {
-      // Generate analysis using Gemini
-      const result = await this.model.generateContent(prompt);
-      const response = await result.response;
+      // Generate analysis using LLM provider with retry mechanism
+      const response = await LogUtils.withRetry(() => this.provider!.analyze(prompt));
       
       // Parse and structure the response
-      return this.parseResponse(response.text(), logText);
+      const analysis = this.parseResponse(response.text, logText);
+      analysis.provider_status = 'ai_enhanced';
+      analysis.metadata.provider_status = 'ai_enhanced';
+      return analysis;
     } catch (error) {
-      throw new Error(`Failed to analyze logs: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('AI analysis failed:', error);
+      const fallback = this.createFallbackAnalysis(error instanceof Error ? error.message : 'Unknown error', logText);
+      fallback.provider_status = 'error_fallback';
+      fallback.metadata.provider_status = 'error_fallback';
+      return fallback;
     }
   }
 
@@ -92,13 +111,10 @@ Be specific and practical in your recommendations. If multiple errors are presen
 
   private parseResponse(responseText: string, originalLogText: string): LogAnalysis {
     try {
-      // Try to extract JSON from the response
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No JSON found in response');
+      const parsed = LogUtils.extractBalancedJson(responseText);
+      if (!parsed) {
+        throw new Error('No valid JSON object found in response');
       }
-
-      const parsed = JSON.parse(jsonMatch[0]);
 
       // Validate and structure the response
       const analysis: LogAnalysis = {

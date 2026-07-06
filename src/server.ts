@@ -12,6 +12,7 @@ import { LogAnalyzer } from './tools/logAnalyzer.js';
 import { FileWatcher } from './tools/fileWatcher.js';
 import { RapidDebugger } from './tools/rapidDebugger.js';
 import { MCPToolResult } from './types.js';
+import { queryErrorLogs } from './db.js';
 
 class LogAnalyzerMCPServer {
   private server: Server;
@@ -158,6 +159,42 @@ class LogAnalyzerMCPServer {
                 }
               }
             }
+          },
+          {
+            name: 'get_error_history',
+            description: 'Get structured historical errors from monitored files with pagination and filtering',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                filePath: {
+                  type: 'string',
+                  description: 'Optional: filter by a specific file path'
+                },
+                severity: {
+                  type: 'string',
+                  enum: ['low', 'medium', 'high', 'critical'],
+                  description: 'Optional: filter by error severity'
+                },
+                since: {
+                  type: 'string',
+                  description: 'Optional: filter by start datetime (ISO-8601 or parseable date string)'
+                },
+                until: {
+                  type: 'string',
+                  description: 'Optional: filter by end datetime (ISO-8601 or parseable date string)'
+                },
+                limit: {
+                  type: 'number',
+                  default: 50,
+                  description: 'Optional: maximum number of errors to return'
+                },
+                offset: {
+                  type: 'number',
+                  default: 0,
+                  description: 'Optional: number of errors to skip'
+                }
+              }
+            }
           }
         ]
       };
@@ -191,6 +228,9 @@ class LogAnalyzerMCPServer {
             break;
           case 'get_recent_errors':
             result = await this.handleGetRecentErrors(args);
+            break;
+          case 'get_error_history':
+            result = await this.handleGetErrorHistory(args);
             break;
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -420,6 +460,24 @@ class LogAnalyzerMCPServer {
     return {
       success: true,
       data: recentErrors
+    };
+  }
+
+  private async handleGetErrorHistory(args: any): Promise<MCPToolResult> {
+    const { filePath, severity, since, until, limit = 50, offset = 0 } = args;
+
+    const dbLogs = queryErrorLogs({
+      filePath,
+      severity,
+      since,
+      until,
+      limit,
+      offset
+    });
+
+    return {
+      success: true,
+      data: dbLogs
     };
   }
 

@@ -5,6 +5,25 @@ All notable changes to the LogAnalyzer MCP Server will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-07-06
+
+### Added
+- Multi-provider LLM support (Google Gemini & Anthropic Claude) controlled via `LLM_PROVIDER` environment variable.
+- Persistent error logging using SQLite (`better-sqlite3`) with LRU caching for performance.
+- New MCP tool `get_error_history` to search, filter, and paginate historical errors in SQLite.
+- Multi-language stack trace parsing in `extractStackTraces` supporting Node/V8, Java, and Python traceback frames.
+- New unit and integration tests covering graceful degradation, JSON extraction, API retries, database persistence, and stack trace parsing.
+
+### Changed
+- Improved LLM API calls with robust exponential backoff retry logic (up to 3 attempts) for transient errors.
+- Enhanced test-runner summary formatting to cleanly denote skipped AI tests when credentials are not configured.
+
+### Fixed
+- Fixed crash-on-startup behavior when no API key is set, enabling local fallbacks to execute safely.
+- Replaced greedy regex JSON extraction with a robust balanced-brace search algorithm.
+- Fixed stack trace parsing failure on Java stack frames lacking column counts.
+- Fixed placeholder URL links in `README.md`, `cursor-directory.md`, and sample integration paths.
+
 ## [1.0.0] - 2024-01-23
 
 ### 🎉 Initial Release

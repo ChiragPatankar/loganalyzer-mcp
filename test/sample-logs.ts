@@ -86,7 +86,29 @@ psycopg2.errors.SyntaxError: syntax error at or near "ELECT"
 2024-01-23 10:30:21 FATAL: Unable to start application due to configuration errors
 2024-01-23 10:30:22 ERROR: Application startup failed
 Process exiting with code 1
-`
+`,
+
+  // Specific stack trace fixtures for unit testing
+  stackTraceFixtures: {
+    node: `
+2024-01-23 14:32:15 ERROR: Node application failure
+    at handleRequest (src/app.ts:25:9)
+    at process (src/router.ts:120:5)
+    at atAnonymous (src/index.ts:10)
+    `,
+    java: `
+2024-01-23 14:32:15 ERROR: Java application failure
+    at com.example.MyClass.execute(MyClass.java:82)
+    at com.example.App.main(App.java:15)
+    `,
+    python: `
+2024-01-23 14:32:15 ERROR: Python application failure
+  File "src/main.py", line 45, in run_app
+    process_data()
+  File "src/db.py", line 12, in process_data
+    db.connect()
+    `
+  }
 };
 
 export const testCases = [
