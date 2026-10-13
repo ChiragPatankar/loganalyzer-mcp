@@ -110,7 +110,8 @@ npm run test-rapid
 | `LLM_PROVIDER` | AI provider to use (`gemini` or `anthropic`) | `gemini` |
 | `GEMINI_API_KEY` | API Key for Gemini (required if `LLM_PROVIDER=gemini`) | - |
 | `ANTHROPIC_API_KEY` | API Key for Anthropic (required if `LLM_PROVIDER=anthropic`) | - |
-| `DB_PATH` | File path for SQLite database store | `loganalyzer.db` |
+| `LLM_MODEL` | Override the model name for the selected provider | `gemini-2.5-flash` / `claude-sonnet-5-5` |
+| `DB_PATH` | File path for SQLite database store | `~/.loganalyzer/loganalyzer.db` |
 | `LOG_LEVEL` | Logging level (`debug`, `info`, `warn`, `error`) | `info` |
 | `MAX_FILE_SIZE` | Maximum size limit of log files to read | `10MB` |
 

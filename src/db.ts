@@ -1,5 +1,7 @@
 import Database from 'better-sqlite3';
 import { config } from './config.js';
+import * as fs from 'fs';
+import * as path from 'path';
 
 let dbInstance: Database.Database | null = null;
 
@@ -16,7 +18,8 @@ export function resetDatabase(): void {
 
 export function getDatabase(): Database.Database {
   if (!dbInstance) {
-    const dbPath = config.get('dbPath') || 'loganalyzer.db';
+    const dbPath = config.get('dbPath');
+    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
     dbInstance = new Database(dbPath);
     
     // Enable Write-Ahead Logging (WAL) for performance

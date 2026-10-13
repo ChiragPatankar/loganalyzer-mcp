@@ -9,11 +9,11 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node --esm src/server.ts",
+    "dev": "tsx src/server.ts",
     "start": "node dist/src/server.js",
     "serve": "npm run build && npm run start",
-    "analyze": "ts-node --esm cli/simple-client.ts",
-    "test": "ts-node --esm test/test-runner.ts",
+    "analyze": "tsx cli/simple-client.ts",
+    "test": "tsx test/test-runner.ts",
     "test-rapid": "node test-rapid-debug.js",
     "validate": "node validate.js",
     "clean": "rimraf dist",
@@ -35,12 +35,13 @@
     "rapid-debug",
     "server-logs",
     "real-time",
-    "actionable-fixes"
+    "actionable-fixes",
+    "anthropic",
+    "claude"
   ],
   "author": {
-    "name": "LogAnalyzer Team",
-    "email": "contact@loganalyzer.dev",
-    "url": "https://loganalyzer.dev"
+    "name": "Chirag Patankar",
+    "url": "https://github.com/ChiragPatankar"
   },
   "license": "MIT",
   "repository": {
@@ -50,7 +51,7 @@
   "bugs": {
     "url": "https://github.com/ChiragPatankar/loganalyzer-mcp/issues"
   },
-  "homepage": "https://loganalyzer.dev",
+  "homepage": "https://github.com/ChiragPatankar/loganalyzer-mcp#readme",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -65,17 +66,17 @@
     "@anthropic-ai/sdk": "^0.110.0",
     "@google/generative-ai": "^0.21.0",
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^12.11.1",
     "chokidar": "^4.0.1",
     "dotenv": "^17.2.0",
     "fs-extra": "^11.2.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.10.2",
     "rimraf": "^6.0.1",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.2"
   },
   "mcp": {

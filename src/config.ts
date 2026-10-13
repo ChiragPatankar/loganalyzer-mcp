@@ -1,12 +1,16 @@
 import * as dotenv from 'dotenv';
+import * as os from 'os';
+import * as path from 'path';
 
 // Load environment variables from .env file
-dotenv.config();
+// quiet: dotenv 17 otherwise logs to stdout, which corrupts the MCP stdio stream
+dotenv.config({ quiet: true });
 
 export interface ServerConfig {
   llmProvider: 'gemini' | 'anthropic';
   geminiApiKey: string;
   anthropicApiKey: string;
+  llmModel?: string;
   logLevel: 'debug' | 'info' | 'warn' | 'error';
   maxFileSize: number; // in bytes
   watchInterval: number; // in milliseconds
@@ -62,13 +66,14 @@ class ConfigManager {
       llmProvider,
       geminiApiKey,
       anthropicApiKey,
+      llmModel: process.env.LLM_MODEL || undefined,
       logLevel: (process.env.LOG_LEVEL as any) || 'info',
       maxFileSize: this.parseSize(process.env.MAX_FILE_SIZE || '10MB'),
       watchInterval: parseInt(process.env.WATCH_INTERVAL || '1000'),
       maxContextTokens: parseInt(process.env.MAX_CONTEXT_TOKENS || '8000'),
       defaultPollInterval: parseInt(process.env.DEFAULT_POLL_INTERVAL || '1000'),
       isAiEnabled,
-      dbPath: process.env.DB_PATH || 'loganalyzer.db'
+      dbPath: process.env.DB_PATH || path.join(os.homedir(), '.loganalyzer', 'loganalyzer.db')
     };
   }
 

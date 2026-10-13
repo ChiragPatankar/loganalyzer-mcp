@@ -14,10 +14,10 @@ export class LogAnalyzer {
       const providerType = config.get('llmProvider');
       if (providerType === 'gemini') {
         const apiKey = config.get('geminiApiKey');
-        this.provider = new GeminiProvider(apiKey);
+        this.provider = new GeminiProvider(apiKey, config.get('llmModel'));
       } else if (providerType === 'anthropic') {
         const apiKey = config.get('anthropicApiKey');
-        this.provider = new AnthropicProvider(apiKey);
+        this.provider = new AnthropicProvider(apiKey, config.get('llmModel'));
       }
     }
   }

@@ -13,6 +13,9 @@ import { FileWatcher } from './tools/fileWatcher.js';
 import { RapidDebugger } from './tools/rapidDebugger.js';
 import { MCPToolResult } from './types.js';
 import { queryErrorLogs } from './db.js';
+import { createRequire } from 'module';
+
+const { version } = createRequire(import.meta.url)('../../package.json');
 
 class LogAnalyzerMCPServer {
   private server: Server;
@@ -24,7 +27,7 @@ class LogAnalyzerMCPServer {
     this.server = new Server(
       {
         name: 'loganalyzer-mcp',
-        version: '1.0.0',
+        version,
         description: 'AI-powered log analysis MCP server with rapid debugging - debug server logs in under 30 seconds'
       },
       {
@@ -494,9 +497,7 @@ async function main() {
   await server.start();
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch((error) => {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  });
-} 
+main().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+}); 

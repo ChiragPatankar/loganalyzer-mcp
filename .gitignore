@@ -49,3 +49,12 @@ coverage/
 # Test files
 test-logs/
 sample-logs/ 
+# Compiled CLI output (built into dist/)
+cli/*.js
+cli/*.d.ts
+cli/*.js.map
+
+# Local SQLite store
+*.db
+*.db-shm
+*.db-wal
