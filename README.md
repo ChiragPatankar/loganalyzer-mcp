@@ -1,201 +1,128 @@
-# 🚀 LogAnalyzer MCP Server
+# LogAnalyzer MCP Server
 
-> **Debug Server Logs in Under 30 Seconds** with AI-powered analysis, real-time monitoring, and actionable fixes.
+**AI-powered log analysis for your editor.** Paste a log or point at a log file, and get the root cause, prioritized fixes, and ready-to-run debug commands, right inside Claude, Cursor, or any other MCP client.
 
-[![NPM Version](https://img.shields.io/npm/v/loganalyzer-mcp)](https://www.npmjs.com/package/loganalyzer-mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/loganalyzer-mcp)](https://www.npmjs.com/package/loganalyzer-mcp)
+[![npm downloads](https://img.shields.io/npm/dt/loganalyzer-mcp)](https://www.npmjs.com/package/loganalyzer-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-green)](https://nodejs.org/)
 
-**LogAnalyzer MCP Server** is a Model Context Protocol (MCP) server that provides AI-powered log analysis with rapid debugging capabilities. Perfect for DevOps engineers, backend developers, and SRE teams who need instant insights into server issues.
+## Features
 
-## ⚡ **Key Features**
+- **Root-cause analysis**: an LLM (Google Gemini or Anthropic Claude) reads your logs and explains what went wrong, with a confidence score.
+- **Actionable fixes**: prioritized suggestions plus copy-paste debug commands.
+- **Live monitoring**: watch log files and catch new errors as they're written.
+- **Stack trace parsing**: Node/V8, Java, and Python traces are parsed into structured fields.
+- **Error history**: every analysis is saved to a local SQLite database you can query by file, severity, and date.
+- **Works without an API key**: with no key, the server still runs and falls back to local pattern matching.
 
-- **🚀 Rapid Debug**: Analyze and debug server logs in under 30 seconds (tested at 7.5s average)
-- **🤖 AI-Powered**: Google Gemini integration for intelligent root cause analysis  
-- **📊 Instant Fixes**: Get prioritized, actionable fixes with exact commands
-- **👀 Real-time Monitoring**: Watch log files for new errors automatically
-- **🔍 Quick Scan**: Ultra-fast error detection in milliseconds
-- **📋 Ready Commands**: Copy-paste debug commands for immediate action
-- **🎯 95% Confidence**: High-accuracy AI analysis for reliable debugging
+## Quick start
 
-## 📦 **Installation**
+You need **Node.js 18+** and, for AI analysis, an API key from [Google AI Studio](https://aistudio.google.com/apikey) or the [Anthropic Console](https://console.anthropic.com/).
 
-### Quick Start (Global Installation)
+### Claude Code
+
 ```bash
-npm install -g loganalyzer-mcp
+claude mcp add loganalyzer -e LLM_PROVIDER=anthropic -e ANTHROPIC_API_KEY=your_key -- npx -y loganalyzer-mcp
 ```
 
-### For Cursor AI Integration
-```bash
-npm install -g loganalyzer-mcp
-```
+### Claude Desktop, Cursor, and other MCP clients
 
-Then add to your Cursor settings:
+Add this to your client's MCP config (`claude_desktop_config.json` for Claude Desktop, `~/.cursor/mcp.json` for Cursor):
+
 ```json
 {
   "mcpServers": {
     "loganalyzer": {
-      "command": "loganalyzer-mcp",
+      "command": "npx",
+      "args": ["-y", "loganalyzer-mcp"],
       "env": {
-        "GEMINI_API_KEY": "your_gemini_api_key_here"
+        "GEMINI_API_KEY": "your_gemini_api_key"
       }
     }
   }
 }
 ```
 
-## 🛠️ **MCP Tools Available**
+To use Claude instead of Gemini, replace the `env` block with:
 
-| Tool | Description | Speed |
-|------|-------------|--------|
-| `rapid_debug` | 🚀 Debug server logs in under 30 seconds with actionable fixes | 7.5s avg |
-| `quick_scan` | ⚡ Ultra-fast error detection for real-time monitoring | <1s |
-| `analyze_log` | 🤖 Deep AI-powered log analysis with root cause identification | 10-15s |
-| `watch_log_file` | 👀 Monitor log files for real-time error detection | Real-time |
-| `stop_watching` | ⏹️ Stop monitoring specific log files | Instant |
-| `list_watched_files` | 📋 View all currently monitored files | Instant |
-| `get_recent_errors` | 📊 Retrieve recent error analysis and history | Instant |
-| `get_error_history` | 🗄️ Query error history from SQLite with pagination and filtering | Instant |
-
-## 🎯 **Perfect For**
-
-- **DevOps Engineers** debugging production issues
-- **Backend Developers** troubleshooting application errors  
-- **SRE Teams** monitoring system health
-- **Support Teams** investigating user-reported issues
-- **Startup Teams** needing fast incident response
-
-## 📋 **Usage Examples**
-
-### With Cursor AI
-```
-"Rapidly debug these server logs and give me actionable fixes"
-"Quick scan this log file for critical errors"  
-"Start monitoring /var/log/app.log for new errors"
-"What's causing these database connection timeouts?"
+```json
+"env": {
+  "LLM_PROVIDER": "anthropic",
+  "ANTHROPIC_API_KEY": "your_anthropic_api_key"
+}
 ```
 
-### Command Line (Testing)
-```bash
-# Test the installation
-loganalyzer-mcp --version
+Prefer a global install? Run `npm install -g loganalyzer-mcp` and use `"command": "loganalyzer-mcp"` with no `args`.
 
-# Analyze a log file directly
-npm run analyze /path/to/logfile.log
+Restart your client, then try asking:
 
-# Run rapid debug test
-npm run test-rapid
+```
+Debug these logs and tell me how to fix them: <paste logs>
+Start watching /var/log/app.log for errors
+Show me all critical errors from the last 24 hours
 ```
 
-## ⚡ **Performance Benchmarks**
+## Tools
 
-- **Analysis Speed**: 7.5 seconds average (target: <30s) - **4x faster than target!**
-- **Quick Scan**: <1 second for instant error detection
-- **AI Confidence**: 95% accuracy in root cause identification
-- **Error Detection**: Instant classification of critical vs. non-critical issues
+| Tool | What it does | Parameters |
+|------|--------------|------------|
+| `rapid_debug` | Fast triage: root cause, prioritized fixes, and debug commands | `logText` |
+| `analyze_log` | Deeper AI analysis with surrounding context | `logText`, `logFormat` (`auto` \| `json` \| `plain`), `contextLines` |
+| `quick_scan` | Local error detection in milliseconds, with no AI call | `logText` |
+| `watch_log_file` | Start monitoring a file for new errors | `filePath`, `pollInterval` |
+| `stop_watching` | Stop monitoring a file | `filePath` |
+| `list_watched_files` | List files being monitored | none |
+| `get_recent_errors` | Recent errors from monitored files | `filePath`, `limit` |
+| `get_error_history` | Query saved errors with filtering and pagination | `filePath`, `severity` (`low` \| `medium` \| `high` \| `critical`), `since`, `until`, `limit`, `offset` |
 
-## 🏗️ **Technical Stack**
+The server also exposes three MCP resources: `loganalyzer://rapid-debug`, `loganalyzer://recent-errors`, and `loganalyzer://watched-files`.
 
-- **Language**: TypeScript/Node.js
-- **AI Provider**: Google Gemini (gemini-1.5-flash)
-- **File Watching**: Chokidar for cross-platform monitoring
-- **MCP Protocol**: Full compliance with latest MCP standards
-- **Deployment**: Docker-ready, cloud-native
+## Configuration
 
-## 🔧 **Configuration**
+All settings are environment variables, set in your MCP client's `env` block or in a `.env` file.
 
-### Environment Variables
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `LLM_PROVIDER` | AI provider to use (`gemini` or `anthropic`) | `gemini` |
-| `GEMINI_API_KEY` | API Key for Gemini (required if `LLM_PROVIDER=gemini`) | - |
-| `ANTHROPIC_API_KEY` | API Key for Anthropic (required if `LLM_PROVIDER=anthropic`) | - |
-| `LLM_MODEL` | Override the model name for the selected provider | `gemini-2.5-flash` / `claude-sonnet-5-5` |
-| `DB_PATH` | File path for SQLite database store | `~/.loganalyzer/loganalyzer.db` |
-| `LOG_LEVEL` | Logging level (`debug`, `info`, `warn`, `error`) | `info` |
-| `MAX_FILE_SIZE` | Maximum size limit of log files to read | `10MB` |
+| `LLM_PROVIDER` | `gemini` or `anthropic` | `gemini` |
+| `GEMINI_API_KEY` | Required when `LLM_PROVIDER=gemini` | none |
+| `ANTHROPIC_API_KEY` | Required when `LLM_PROVIDER=anthropic` | none |
+| `LLM_MODEL` | Override the model for the selected provider | `gemini-2.5-flash` / `claude-sonnet-5-5` |
+| `DB_PATH` | Where the SQLite error history is stored | `~/.loganalyzer/loganalyzer.db` |
 
-### Graceful Degradation (Local Processing)
-If no API key matches the active provider, the server will **not crash**. It logs a warning to `stderr` and disables AI-backed enhancements. The tools will still perform local pattern scanning, watch log files, record events, and compile local fallback diagnoses safely.
+**No API key?** The server still starts. It logs a warning to stderr, disables AI analysis, and the tools keep working with local pattern matching, file watching, and history.
 
-### MCP Server Configuration Example
-```json
-{
-  "mcpServers": {
-    "loganalyzer": {
-      "command": "loganalyzer-mcp",
-      "env": {
-        "LLM_PROVIDER": "anthropic",
-        "ANTHROPIC_API_KEY": "your_anthropic_api_key_here",
-        "DB_PATH": "path/to/loganalyzer.db",
-        "LOG_LEVEL": "info"
-      }
-    }
-  }
-}
-```
+## Troubleshooting
 
-## 🌟 **What Makes It Special**
+- **The server exits right away when I run it in a terminal.** That's expected. MCP servers talk over stdin/stdout and are started by your MCP client, not run by hand.
+- **Analysis says "AI analysis disabled".** No API key matches `LLM_PROVIDER`. Check that the key is in your client's `env` block and restart the client.
+- **Model not found errors.** Your key may not have access to the default model. Set `LLM_MODEL` to one it does.
+- **Install fails while building `better-sqlite3`.** It's a native module. Make sure you're on a current Node.js LTS release; prebuilt binaries are downloaded for most platforms.
+- **File watching doesn't pick anything up.** Use an absolute path and check that the file is readable by the user your MCP client runs as.
 
-- **Speed**: 4x faster than the 30-second target
-- **Intelligence**: AI-powered analysis vs. simple pattern matching
-- **Actionability**: Provides exact commands, not just descriptions
-- **Reliability**: 95% confidence with fallback mechanisms
-- **Completeness**: End-to-end solution from detection to resolution
+## Development
 
-## 📈 **Community Impact**
-
-- **Reduces MTTR** (Mean Time To Recovery) by 80%
-- **Eliminates manual log parsing** with intelligent AI analysis
-- **Provides learning** through detailed explanations and suggestions
-- **Scales expertise** by giving junior developers senior-level debugging insights
-
-## 🚀 **Integration Guides**
-
-- [Cursor AI Integration](docs/cursor-integration.md)
-- [Claude Desktop Setup](docs/claude-desktop.md)
-- [Example Usage Scenarios](examples/sample-usage.md)
-
-## 🐛 **Troubleshooting**
-
-### Common Issues
-1. **MCP Server exits immediately**: This is normal! MCP servers are started on-demand by clients.
-2. **API Key errors**: Ensure `GEMINI_API_KEY` is set in your environment.
-3. **File watching fails**: Check file permissions and path validity.
-
-### Debug Commands
 ```bash
-# Test API connection
-npm run validate
-
-# Test rapid debugging
-npm run test-rapid
-
-# Check configuration
-node -e "console.log(process.env.GEMINI_API_KEY ? 'API Key set' : 'API Key missing')"
+git clone https://github.com/ChiragPatankar/loganalyzer-mcp.git
+cd loganalyzer-mcp
+npm ci
+npm run build
+npm test
 ```
 
-## 🤝 **Contributing**
+`npm run dev` runs the server from source and `npm run analyze <logfile>` runs a quick CLI analysis. To test with an MCP client, point it at `node /absolute/path/to/loganalyzer-mcp/dist/src/server.js`.
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -am 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit a Pull Request
+More guides:
 
-## 📄 **License**
+- [Cursor integration](docs/cursor-integration.md)
+- [Example usage](examples/sample-usage.md)
+- [Hardening notes](docs/hardening.md)
+- [Changelog](CHANGELOG.md)
 
-MIT License - see [LICENSE](LICENSE) file for details.
+## Contributing
 
-## 🔗 **Links**
+Issues and pull requests are welcome. Please run `npm run build && npm test` before opening a PR, and [open an issue](https://github.com/ChiragPatankar/loganalyzer-mcp/issues) first for larger changes.
 
-- **NPM Package**: [loganalyzer-mcp](https://www.npmjs.com/package/loganalyzer-mcp)
-- **GitHub Repository**: [LogAnalyzer MCP Server](https://github.com/ChiragPatankar/loganalyzer-mcp)
-- **Documentation**: [Full Documentation](docs/)
-- **Hardening Walkthrough**: [Hardening Details](docs/hardening.md)
-- **Issues**: [Report Issues](https://github.com/ChiragPatankar/loganalyzer-mcp/issues)
+## License
 
----
-
-**Made with ❤️ for the developer community**  
-*Helping teams debug faster, learn more, and ship with confidence.* 
+[MIT](LICENSE) © Chirag Patankar

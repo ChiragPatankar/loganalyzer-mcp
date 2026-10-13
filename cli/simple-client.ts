@@ -129,6 +129,4 @@ java.sql.SQLException: Connection is not available, request timed out after 3000
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(console.error);
-} 
+main().catch(console.error); 
